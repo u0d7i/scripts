@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# mandatory checks
+if [ $(id -u) -ne 0 ]; then
+    echo "you are not root"
+    exit
+fi
+if [ -z "$(command -v iwlist)" ]; then
+    echo "iwlist not installed"
+    exit
+fi
+
+# defaults
+IF="wlan0"
+# use interface name if provided
+[ -n "${1}" ] && IF=${1}
+
+# iwlist output differs across versions
+# don't expect compatibility
+# don't trust iwlist on the order
+iwlist ${IF} scan | \
+    egrep "Address:|Channel:|ESSID:|Encryption key:|Quality=" | \
+    sed -e 's/Channel:/ch:/' -e 's/Encryption //' -e 's/[ \t]*Signal level=.*$//'| \
+    sed 'N;N;N;N;s/\n/;/g' | \
+    sed -e 's/^[ \t]*//' -e 's/;[ \t]*/;/g' -e 's/Cell.*- Address: /BSSID:/' \
+        -e 's/Quality=/quality:/' | \
+    while read line
+    do
+        for a in $(seq 5)
+        do
+            echo $line | cut -d\; -f${a} 
+        done | sort | sed -e 'N;N;N;N;s/\n/;/g' -e 's/[BE]SSID://g' -e 's/quality://'
+    done | \
+    awk -F\; '{printf "%s %-5s %-7s %s %s\n", $1,$2,$4,$5,$3}' | sort -rk 4
+
