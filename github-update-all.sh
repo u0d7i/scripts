@@ -26,7 +26,7 @@ do
     [ -d "${BD}/${U}" ] || mkdir "${BD}/${U}"
     if [ -d "${BD}/${U}" ]; then
         cd "${BD}/${U}" || err "can't continue"
-        ${CL} "${GHA}/users/${U}/repos?visibility=all" | grep '"name":' | awk -F\" '{print $4}' | while read R;
+        ${CL} "${GHA}/users/${U}/repos?visibility=all" | grep '^    "name":' | awk -F\" '{print $4}' | while read R;
             do
                 echo "+ ${U}/${R} ..."
                 if [ -d "${BD}/${U}/${R}" ]; then
