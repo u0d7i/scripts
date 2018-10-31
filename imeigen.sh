@@ -31,7 +31,8 @@ luhn_checksum() {
 }
 
 FN="tac.csv"
-URL="http://www.mulliner.org/tacdb/feed/contrib/tacdb_210114.csv"
+#URL="http://www.mulliner.org/tacdb/feed/contrib/tacdb_210114.csv"
+URL="http://tacdb.osmocom.org/export/tacdb.csv"
 if [ ! -f ${FN} ]; then
   wget -c -O ${FN} "$URL"
 fi
