@@ -10,8 +10,12 @@ tac_file = 'tac.csv'
 tac_url = 'http://tacdb.osmocom.org/export/tacdb.csv'
 
 parser = argparse.ArgumentParser(description='Set IMEI (education purposes only)')
-group = parser.add_mutually_exclusive_group(required=True)
-group.add_argument('-r','--random',action='store_true', help="Random IMEI")
+parser.add_argument('-s','--set',action='store_true', help='Actually set (default is print)')
+gr_req = parser.add_mutually_exclusive_group(required=True)
+gr_req.add_argument('-r','--random',action='store_true', help="Random IMEI")
+gr_req.add_argument('-t','--tac',action='store_true', help="Random real TAC IMEI")
+gr_req.add_argument('-u','--update',action='store_true', help="Update TAC file")
+gr_req.add_argument('-T','--target',action='store', help="IMEI based on vendor/product string, TAC or IMEI part")
 
 args = parser.parse_args()
 if not vars(args):
