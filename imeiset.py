@@ -9,9 +9,19 @@ import argparse
 tac_file = 'tac.csv'
 tac_url = 'http://tacdb.osmocom.org/export/tacdb.csv'
 
+def check_tacfile():
+    if (not Path(tac_file).exists()):
+        print('TAC file',tac_file,'does not exist, use -u to download it')
+        quit()
+
+def do_update():
+    print('Updating', tac_file,'downloading from',tac_url)
+    import urllib.request
+    urllib.request.urlretrieve (tac_url, tac_file)
+
 parser = argparse.ArgumentParser(description='Set IMEI (education purposes only)')
 parser.add_argument('-s','--set',action='store_true', help='Actually set (default is print)')
-parser.add_argument('-f','--file',action='store', default=tac_file, help='TAC file')
+parser.add_argument('-f','--file',action='store', help='TAC file')
 gr_req = parser.add_mutually_exclusive_group(required=True)
 gr_req.add_argument('-r','--random',action='store_true', help="Random IMEI")
 gr_req.add_argument('-t','--tac',action='store_true', help="Random real TAC IMEI")
@@ -24,12 +34,21 @@ if not vars(args):
     parser.print_help()
     parser.exit(1)
 
+# remove this after cleanup
 print(args)
 
-if (not Path(tac_file).exists()):
-    print(tac_file,'does not exist, downloading from',tac_url)
-    import urllib.request
-    urllib.request.urlretrieve (tac_url, tac_file)
+if args.file:
+    tac_file=args.file
+
+if args.update:
+    do_update()
+
+if args.tac:
+    check_tacfile()
+    print('tacfile exists')
+
+# cleanup below this line
+quit()
 
 with open(tac_file,'r') as file:
     csv_reader = reader(file, delimiter=',')
