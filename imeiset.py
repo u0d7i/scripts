@@ -11,16 +11,20 @@ tac_url = 'http://tacdb.osmocom.org/export/tacdb.csv'
 
 parser = argparse.ArgumentParser(description='Set IMEI (education purposes only)')
 parser.add_argument('-s','--set',action='store_true', help='Actually set (default is print)')
+parser.add_argument('-f','--file',action='store', default=tac_file, help='TAC file')
 gr_req = parser.add_mutually_exclusive_group(required=True)
 gr_req.add_argument('-r','--random',action='store_true', help="Random IMEI")
 gr_req.add_argument('-t','--tac',action='store_true', help="Random real TAC IMEI")
+gr_req.add_argument('-F','--factory',action='store_true', help="Factory IMEI (based on serial)")
+gr_req.add_argument('-T','--targ',action='store', help="IMEI based on string, TAC or part")
 gr_req.add_argument('-u','--update',action='store_true', help="Update TAC file")
-gr_req.add_argument('-T','--target',action='store', help="IMEI based on vendor/product string, TAC or IMEI part")
 
 args = parser.parse_args()
 if not vars(args):
     parser.print_help()
     parser.exit(1)
+
+print(args)
 
 if (not Path(tac_file).exists()):
     print(tac_file,'does not exist, downloading from',tac_url)
