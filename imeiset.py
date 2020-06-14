@@ -14,6 +14,10 @@ def check_tacfile():
         print('TAC file',tac_file,'does not exist, use -u to download it')
         quit()
 
+def is_root():
+    import os
+    return os.geteuid() == 0
+
 def do_update():
     print('Updating', tac_file,'downloading from',tac_url)
     import urllib.request
@@ -36,7 +40,8 @@ def do_tac():
     print(IMEI,'-',tac_list[1],tac_list[2])
 
 def do_factory():
-    serial_port = get_serial()
+    get_serial_nr()
+    serial_port = get_serial_port()
     print('Not implemented yet')
 
 def parse_args():
@@ -66,7 +71,22 @@ def read_tacfile():
         tac_list=csv_data[randrange(2,row_count)]
     return tac_list
 
-def get_serial():
+def get_serial_nr():
+    if (not is_root()):
+        print("- You are not root")
+        quit()
+    import usb
+    dev = usb.core.find(idProduct=0x68a2)
+    try:
+        serial_nr = usb.util.get_string( dev, dev.iSerialNumber )
+    except:
+        print("- Can't get modem serial number")
+        quit()
+    print('Serial nr:',serial_nr)
+    return serial_nr
+
+def get_serial_port():
+    import serial
     import serial.tools.list_ports
     serial_port = ""
     for port in serial.tools.list_ports.comports():
@@ -76,7 +96,25 @@ def get_serial():
         print("- Modem is not connected")
         quit()
     print("Modem serial port:",serial_port)
-    return serial_port
+    ser = serial.Serial(port=serial_port, baudrate=115200, bytesize=8, parity='N', stopbits=1, timeout=1)
+    ser.write(b"AT+CGSN \r")
+    info = readreply(ser)
+    print(info)
+    ser.write(b"AT+CIMI  \r")
+    info = readreply(ser)
+    print(info)
+    #return serial_port
+
+def readreply(ser):
+    info=[]
+    while (True):
+        tmp=ser.readline().decode('utf-8').replace('\r','').replace('\n','')
+        if ("OK" in info):
+            return info
+        elif ("ERROR" in info) or info=="":
+            return -1
+        info.append(tmp)
+    return info
 
 args=parse_args()
 # remove this after cleanup
