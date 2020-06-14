@@ -36,6 +36,7 @@ def do_tac():
     print(IMEI,'-',tac_list[1],tac_list[2])
 
 def do_factory():
+    serial_port = get_serial()
     print('Not implemented yet')
 
 def parse_args():
@@ -65,6 +66,18 @@ def read_tacfile():
         tac_list=csv_data[randrange(2,row_count)]
     return tac_list
 
+def get_serial():
+    import serial.tools.list_ports
+    serial_port = ""
+    for port in serial.tools.list_ports.comports():
+        if port.vid == 0x1199 and int(port.location[-1:]) == 3:
+            serial_port = port.device
+    if serial_port == "":
+        print("- Modem is not connected")
+        quit()
+    print("Modem serial port:",serial_port)
+    return serial_port
+
 args=parse_args()
 # remove this after cleanup
 # print(args)
@@ -80,3 +93,6 @@ if args.random:
 
 if args.tac:
     do_tac()
+
+if args.factory:
+    do_factory()
