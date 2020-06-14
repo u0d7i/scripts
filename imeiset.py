@@ -19,21 +19,23 @@ def do_update():
     import urllib.request
     urllib.request.urlretrieve (tac_url, tac_file)
 
-parser = argparse.ArgumentParser(description='Set IMEI (education purposes only)')
-parser.add_argument('-s','--set',action='store_true', help='Actually set (default is print)')
-parser.add_argument('-f','--file',action='store', help='TAC file')
-gr_req = parser.add_mutually_exclusive_group(required=True)
-gr_req.add_argument('-r','--random',action='store_true', help="Random IMEI")
-gr_req.add_argument('-t','--tac',action='store_true', help="Random real TAC IMEI")
-gr_req.add_argument('-F','--factory',action='store_true', help="Factory IMEI (based on serial)")
-gr_req.add_argument('-T','--targ',action='store', help="IMEI based on string, TAC or part")
-gr_req.add_argument('-u','--update',action='store_true', help="Update TAC file")
+def parse_args():
+    parser = argparse.ArgumentParser(description='Set IMEI (education purposes only)')
+    parser.add_argument('-s','--set',action='store_true', help='Actually set (default is print)')
+    parser.add_argument('-f','--file',action='store', help='TAC file')
+    gr_req = parser.add_mutually_exclusive_group(required=True)
+    gr_req.add_argument('-r','--random',action='store_true', help="Random IMEI")
+    gr_req.add_argument('-t','--tac',action='store_true', help="Random real TAC IMEI")
+    gr_req.add_argument('-F','--factory',action='store_true', help="Factory IMEI (based on serial)")
+    gr_req.add_argument('-T','--targ',action='store', help="IMEI based on string, TAC or part")
+    gr_req.add_argument('-u','--update',action='store_true', help="Update TAC file")
+    
+    args = parser.parse_args()
+    if not vars(args):
+        parser.print_help()
+        parser.exit(1)
 
-args = parser.parse_args()
-if not vars(args):
-    parser.print_help()
-    parser.exit(1)
-
+parse_args()
 # remove this after cleanup
 print(args)
 
