@@ -40,9 +40,16 @@ def do_tac():
     print(IMEI,'-',tac_list[1],tac_list[2])
 
 def do_factory():
-    get_serial_nr()
-    serial_port = get_serial_port()
-    print('Not implemented yet')
+    serial_nr = get_serial_nr()
+    print('Serial nr:',serial_nr)
+    ser = get_serial_port()
+    ser.write(b"AT+CGSN \r")
+    info = readreply(ser)
+    curr_imei = info[1]
+    print('Curr IMEI:',curr_imei)
+    if curr_imei == serial_nr:
+        print('IMEI is factory default')
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Set IMEI (education purposes only)')
@@ -82,7 +89,6 @@ def get_serial_nr():
     except:
         print("- Can't get modem serial number")
         quit()
-    print('Serial nr:',serial_nr)
     return serial_nr
 
 def get_serial_port():
@@ -95,15 +101,9 @@ def get_serial_port():
     if serial_port == "":
         print("- Modem is not connected")
         quit()
-    print("Modem serial port:",serial_port)
+    #print("Modem serial port:",serial_port)
     ser = serial.Serial(port=serial_port, baudrate=115200, bytesize=8, parity='N', stopbits=1, timeout=1)
-    ser.write(b"AT+CGSN \r")
-    info = readreply(ser)
-    print(info)
-    ser.write(b"AT+CIMI  \r")
-    info = readreply(ser)
-    print(info)
-    #return serial_port
+    return ser
 
 def readreply(ser):
     info=[]
