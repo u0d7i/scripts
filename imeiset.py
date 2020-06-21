@@ -34,7 +34,7 @@ def do_random():
 def do_tac():
     global IMEI
     check_tacfile()
-    tac_list=read_tacfile()
+    tac_list=read_tacfile('')
     TAC=tac_list[0]
     SN = f'{randrange(999999):06}'
     IMEI0 = TAC + SN
@@ -57,6 +57,7 @@ def do_factory():
         IMEI = serial_nr
 
 def do_targ(STRING):
+    global IMEI
     print("guessing", STRING)
     if STRING.isdigit():
         print("we have a number, len:", len(STRING))
@@ -68,7 +69,18 @@ def do_targ(STRING):
             else:
                 print("we've got partial IMEI, calculating the rest")
     else:
-        print("we've got string, checking,searching in TAC list")
+        print("we've got string, searching in TAC list")
+        check_tacfile()
+        tac_list=read_tacfile(STRING)
+        # FIXME, repeats -t
+        TAC=tac_list[0]
+        SN = f'{randrange(999999):06}'
+        IMEI0 = TAC + SN
+        CD = luhn.calc_check_digit(IMEI0)
+        IMEI = IMEI0 + CD
+        print(IMEI,'-',tac_list[1],tac_list[2])
+
+
 
 
 def parse_args():
@@ -90,12 +102,20 @@ def parse_args():
         parser.exit(1)
     return args
 
-def read_tacfile():
+def read_tacfile(STRING):
     with open(tac_file,'r') as file:
         csv_reader = reader(file, delimiter=',')
         csv_data = list(csv_reader)
-        row_count = len(csv_data)
-        tac_list=csv_data[randrange(2,row_count)]
+        del csv_data[0] # remove header
+    if STRING != '':
+        tmp_data = []
+        for tmp_list in csv_data:
+            if any(STRING.casefold() in s.casefold() for s in tmp_list):
+                tmp_data.append(tmp_list)
+                #print(tmp_list)
+        csv_data = tmp_data
+    row_count = len(csv_data)
+    tac_list=csv_data[randrange(0,row_count)]
     return tac_list
 
 def get_serial_nr():
