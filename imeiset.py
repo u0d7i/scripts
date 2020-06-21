@@ -8,6 +8,7 @@ import argparse
 
 tac_file = 'tac.csv'
 tac_url = 'http://tacdb.osmocom.org/export/tacdb.csv'
+IMEI = ''
 
 def check_tacfile():
     if (not Path(tac_file).exists()):
@@ -24,12 +25,14 @@ def do_update():
     urllib.request.urlretrieve (tac_url, tac_file)
 
 def do_random():
+    global IMEI
     IMEI0 = f'{randrange(99999999999999):014}'
     CD = luhn.calc_check_digit(IMEI0)
     IMEI = IMEI0 + CD
     print(IMEI,'- random')
 
 def do_tac():
+    global IMEI
     check_tacfile()
     tac_list=read_tacfile()
     TAC=tac_list[0]
@@ -40,6 +43,7 @@ def do_tac():
     print(IMEI,'-',tac_list[1],tac_list[2])
 
 def do_factory():
+    global IMEI
     serial_nr = get_serial_nr()
     print('Serial nr:',serial_nr)
     ser = get_serial_port()
@@ -49,6 +53,22 @@ def do_factory():
     print('Curr IMEI:',curr_imei)
     if curr_imei == serial_nr:
         print('IMEI is factory default')
+    else:
+        IMEI = serial_nr
+
+def do_targ(STRING):
+    print("guessing", STRING)
+    if STRING.isdigit():
+        print("we have a number, len:", len(STRING))
+        if len(STRING) > 15:
+            print("IMEI too long")
+        else:
+            if len(STRING) == 15:
+                print("we've got full IMEI,checking validity")
+            else:
+                print("we've got partial IMEI, calculating the rest")
+    else:
+        print("we've got string, checking,searching in TAC list")
 
 
 def parse_args():
@@ -116,6 +136,11 @@ def readreply(ser):
         info.append(tmp)
     return info
 
+
+def set_imei(IMEI):
+    if IMEI != '':
+        print("Actually setting IMEI:",IMEI)
+
 args=parse_args()
 # remove this after cleanup
 # print(args)
@@ -134,3 +159,9 @@ if args.tac:
 
 if args.factory:
     do_factory()
+
+if args.targ:
+    do_targ(args.targ)
+
+if args.set:
+    set_imei(IMEI)
