@@ -80,9 +80,6 @@ def do_targ(STRING):
         IMEI = IMEI0 + CD
         print(IMEI,'-',tac_list[1],tac_list[2])
 
-
-
-
 def parse_args():
     parser = argparse.ArgumentParser(description='Set IMEI (education purposes only)')
     parser.add_argument('-s','--set',action='store_true', help='Actually set (default is print)')
@@ -155,7 +152,6 @@ def readreply(ser):
             return -1
         info.append(tmp)
     return info
-
 
 def set_imei(IMEI):
     if IMEI != '':
