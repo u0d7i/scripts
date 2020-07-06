@@ -65,9 +65,27 @@ def do_targ(STRING):
             print("IMEI too long")
         else:
             if len(STRING) == 15:
-                print("we've got full IMEI,checking validity")
+                print("we've got full IMEI, checking validity")
+                IMEI = STRING
+                IMEI0 = STRING[:14]
+                CD = STRING[14:]
+                if luhn.calc_check_digit(IMEI0) == CD:
+                    print("IMEI is valid")
+                else:
+                    print("IMEI is invalid, should be ", IMEI0 + luhn.calc_check_digit(IMEI0))
             else:
                 print("we've got partial IMEI, calculating the rest")
+                NEED=(14 - len(STRING))
+                if NEED == 0:
+                    IMEI0 = STRING
+                else:
+                     RANGE=((10**(NEED)-1))
+                     SN = randrange(RANGE)
+                     SN = str(SN).zfill(NEED)
+                     IMEI0 = STRING + SN
+                CD = luhn.calc_check_digit(IMEI0)
+                IMEI = IMEI0 + CD
+            print("IMEI: ", IMEI)
     else:
         print("we've got string, searching in TAC list")
         check_tacfile()
