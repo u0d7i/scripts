@@ -130,7 +130,11 @@ def read_tacfile(STRING):
                 #print(tmp_list)
         csv_data = tmp_data
     row_count = len(csv_data)
-    tac_list=csv_data[randrange(0,row_count)]
+    try:
+        tac_list=csv_data[randrange(0,row_count)]
+    except ValueError:
+        print("- String not found in TAC file")
+        quit()
     return tac_list
 
 def get_serial_nr():
